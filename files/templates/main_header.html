@@ -1,0 +1,31 @@
+{% load static %}
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://unpkg.com/tailwindcss@^1.0/dist/tailwind.min.css" rel="stylesheet">
+    <link href="{% static 'main.css' %}" rel="stylesheet" type="text/css">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+</head>
+<body>
+    <div class="sidenav font-mono">
+        <br><br><br><br>
+        <a href="/" class="sidebar-item">Home</a>
+        <a href="/shared_drives" class="sidebar-item">Shared Drives</a>
+        <a href="/search" class="sidebar-item">Search</a>
+        <a href="/files/my-drive" class="sidebar-item">My Drive</a>
+        <a href="/files/favourites" class="sidebar-item">Favourites</a>
+        <a href="/files/shared-with-me" class="sidebar-item">Shared With Me</a>
+        <a href="/settings" class="sidebar-item">Settings</a>
+    </div>
+    <div class="main font-mono">
+        {% if return_message %}
+        <div class="bg-red-500 text-white font-bold rounded-t px-4 py-2">ERROR</div>
+        <div class="border border-t-0 border-red-400 rounded-b bg-red-100 px-4 py-3 text-red-700">
+            <p>{{return_message}}</p>
+        </div>
+        {% endif %}
+
+        {% block body %}
+
+        {% endblock %}
+    </div>
+</body>

@@ -1,0 +1,45 @@
+{% extends "main_header.html" %}
+{% block body %}
+{% load tz %}
+    <br>
+    <div class="grid grid-cols-1 gap-1">
+        <div class="flex -mx-2">
+            <div class="w-1/5">
+                Action
+            </div>
+            <div class="w-1/6 list-item">
+                Affected File
+            </div>
+            <div class="w-1/5 date_col">
+                Time Occurred
+            </div>
+            <div class="w-1/5">
+                Modified By
+            </div>
+        </div>
+        {% for change in change_list %}
+            <div class="flex -mx-2">
+                <div class="w-1/5 marquee">
+                    {{change.change}}
+                </div>
+                <div class="w-1/6 list-item marquee">
+                    <a href="/files/{{change.file_id}}">
+                        <span class="marquee-content">{{change.file}}</span>
+                    </a>
+                </div>
+                <div class="w-1/5 date_col">
+                    {% localtime on %}
+                        {% if change.date < date %}
+                        {{ change.date | date:"F d Y" }}
+                        {% else %}
+                        {{ change.time | date:"h:iA" }}
+                        {% endif %}
+                    {% endlocaltime %}
+                </div>
+                <div class="w-1/5">
+                    Modified By
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+{% endblock %}

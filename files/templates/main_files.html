@@ -1,0 +1,79 @@
+{% extends "main_header.html" %}
+{% block body %}
+{% load tz %}
+    <br>
+    <input id="search_input" onkeyup="searchGrid()" style="background-color: #1F1F1F;" class="text-white w-full p-2" placeholder="Search...">
+    <div class="grid grid-cols-1 gap-1" id="file_table">
+        <div class="flex -mx-2">
+            <div class="w-1/2 list-item">
+                Name
+            </div>
+            <div class="w-1/4 date_col">
+                Last Modified
+            </div>
+            <div class="w-1/6">
+                Size
+            </div>
+        </div>
+        <div class="flex -mx-2">
+            <div class="w-1/2 list-item">
+                <a href='/files/{{parent}}'>../</a>
+            </div>
+            <div class="w-1/4 date_col">
+                -
+            </div>
+            <div class="w-1/6">
+                -
+            </div>
+        </div>
+        {% for file in file_list %}
+            <div class="flex -mx-2">
+                <div class="w-1/2 list-item marquee">
+                    {% if 'folder' in file.mimetype %}
+                        <a href="/files/{{file.file_id}}">
+                            <span class="marquee-content folder">{{file.name}}/</span>
+                        </a>
+                    {% else %}
+                        <span class="marquee-content">{{file.name}}</span>
+                    {% endif %}
+                </div>
+                <div class="w-1/4 date_col">
+                    {% localtime on %}
+                        {% if file.modified_date < date %}
+                            {{ file.modified_date | date:"F d Y" }}
+                        {% else %}
+                            {{ file.modified_time | date:"h:iA" }}
+                        {% endif %}
+                    {% endlocaltime %}
+                </div>
+                <div class="w-1/6">
+                    {% if 'folder' in file.mimetype %}
+                        <span title="{{file.file_size}}">-</span>
+                    {% else %}
+                        {{file.file_size}}
+                    {% endif %}
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+    <script>
+        function searchGrid() {
+        var input, filter, grid, flex, listitem, i, txtValue;
+        input = document.getElementById("search_input");
+        filter = input.value.toUpperCase();
+        grid = document.getElementById("file_table");
+        flex = grid.getElementsByClassName("flex");
+        for (i = 0; i <flex.length; i++) {
+            listitem =flex[i].getElementsByClassName("list-item")[0];
+            if (listitem) {
+            txtValue = listitem.textContent || listitem.innerText;
+            if (txtValue.toUpperCase().indexOf(filter) > -1) {
+            flex[i].style.display = "";
+            } else {
+            flex[i].style.display = "none";
+            }
+            }       
+        }
+        }
+    </script>
+{% endblock %}
