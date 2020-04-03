@@ -2,7 +2,9 @@
 {% block body %}
 {% load tz %}
     <br>
-    <input id="search_input" onkeyup="searchGrid()" style="background-color: #080828;" class="text-white w-full p-2" placeholder="Search...">
+    <form action="/search/" method="GET">
+        <input id="search_input" name="q" style="background-color: #080828;" class="text-white w-full p-2" placeholder="Search...">
+    </form>
     <div class="grid grid-cols-1 gap-1">
         <div class="flex -mx-2">
             <div class="w-1/2 list-item">
@@ -15,19 +17,8 @@
                 Size
             </div>
         </div>
-        <div class="flex -mx-2">
-            <div class="w-1/2 list-item">
-                <a href='/files/{{parent}}'>../</a>
-            </div>
-            <div class="w-1/4 date_col">
-                -
-            </div>
-            <div class="w-1/6">
-                -
-            </div>
-        </div>
     </div>
-    <div class="grid grid-cols-1 gap-1" id="file_table">
+    <div class="grid grid-cols-1 gap-0" id="file_table">
         {% for file in file_list %}
             <div class="flex -mx-2">
                 <div class="w-1/2 list-item marquee">

@@ -2,18 +2,21 @@
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link href="https://unpkg.com/tailwindcss@^1.0/dist/tailwind.min.css" rel="stylesheet">
-    <link href="{% static 'main.css' %}" rel="stylesheet" type="text/css">
+    <link href="{% static 'main.css' %}?v=2" type="text/css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 </head>
 <body>
     <div class="sidenav font-mono">
         <br><br><br><br>
         <a href="/" class="sidebar-item">Home</a>
-        <a href="/shared_drives" class="sidebar-item">Shared Drives</a>
         <a href="/search" class="sidebar-item">Search</a>
+        <hr>
         <a href="/files/my-drive" class="sidebar-item">My Drive</a>
-        <a href="/files/favourites" class="sidebar-item">Favourites</a>
+        <a href="/shared_drives" class="sidebar-item">Shared Drives</a>
+        <hr>
         <a href="/files/shared-with-me" class="sidebar-item">Shared With Me</a>
+        <a href="/files/favourites" class="sidebar-item">Favourites</a>
+        <hr>
         <a href="/settings" class="sidebar-item">Settings</a>
     </div>
     <div class="main font-mono">

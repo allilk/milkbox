@@ -8,6 +8,7 @@ from django.dispatch import receiver
 class UserProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     gdrive_auth = JSONField(default=dict,blank=True)
+    
     def __str__(self):
         return self.user.username
 
@@ -30,6 +31,8 @@ class cachedFile(models.Model):
     modified_time = models.TimeField(null=True)
     users = ArrayField(models.IntegerField(), null=True)
     tags = ArrayField(models.CharField(max_length=1024), null=True)
+    is_shared = models.BooleanField(default=False)
+    shared_with = ArrayField(models.IntegerField(), null=True)
     def __str__(self):
         return self.name
 

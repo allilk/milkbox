@@ -1,6 +1,7 @@
 from django.contrib.auth.models import User
 from asgiref.sync import sync_to_async
 from .models import cachedFile, cachedSharedDrive
+from .config import CLIENT_ID, CLIENT_SECRET, TOKEN_URL
 
 from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
@@ -9,10 +10,6 @@ from requests_oauthlib import OAuth2Session
 
 import json, datetime
 from dateutil.parser import isoparse
-
-client_id = '631412553786-5k8431814r6rcc7c17dttbrk9cd5ij5s.apps.googleusercontent.com'
-client_secret = 'idp7icIrPCt3EF59n-fyV-7T'
-token_url = "https://www.googleapis.com/oauth2/v4/token"
 
 def convert_bytes(num):
     step_unit=1000.0
@@ -42,7 +39,7 @@ def get_service(current_user, user_id=None, activity=False):
         g_auth=json.loads(User.objects.select_related('userprofile').get(id=user_id).userprofile.gdrive_auth)
 
     credentials=Credentials(token=g_auth['access_token'],refresh_token=g_auth['refresh_token'],
-    token_uri=token_url,client_id=client_id,client_secret=client_secret)
+    token_uri=TOKEN_URL,client_id=CLIENT_ID,client_secret=CLIENT_SECRET)
     if not credentials or not credentials.valid:
         if credentials and credentials.expired and credentials.refresh_token:
             credentials.refresh(Request())
@@ -113,7 +110,8 @@ def add(current_user, folder_id, refresh=False):
             modified_date=mod_date,
             modified_time=mod_time,
             users=user_list,
-            tags=tags
+            tags=tags,
+            shared_with=user_list
             )
         newFile.save()
         print(f"LOG : '{item['name']}' successfully cached.")
@@ -127,14 +125,14 @@ def add_tds(current_user, refresh=False):
             user_list+=list(dict.fromkeys(item.users))
         drive_list.delete()
     user_list=list(dict.fromkeys(user_list))
-    drive_list={'nextPageToken':None}
+    shared_drives={'nextPageToken':None}
     while 'nextPageToken' in shared_drives:
         shared_drives = service.drives().list(pageSize=100,pageToken=shared_drives['nextPageToken']).execute()
         drive_list+=shared_drives['drives']
     for drive in drive_list:
         newDrive=cachedSharedDrive(
-            name=item['name'],
-            drive_id=item['id'],
+            name=drive['name'],
+            drive_id=drive['id'],
             users=user_list
             )
         newDrive.save()

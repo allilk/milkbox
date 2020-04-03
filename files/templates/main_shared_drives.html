@@ -1,0 +1,15 @@
+{% extends "main_header.html" %}
+{% block body %}
+<div class="grid grid-cols-1 gap-1">
+    {% for drive in driveList %}
+    <a href="/files/{{drive.drive_id}}">
+        <div class="flex -mx-2">
+            <div class="list-item">
+                {{drive.name}}
+                <br><span style="color: lightgray; font-size: 0.85rem;">({{drive.drive_id}})</span>
+            </div>
+        </div>
+    </a>
+    {% endfor %}
+</div>
+{% endblock %}

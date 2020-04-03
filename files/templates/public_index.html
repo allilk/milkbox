@@ -1,0 +1,36 @@
+{% extends "public_header.html" %}
+{% block body %}
+<style>
+    body{
+        background-color: #00001a;
+        color: #e6e6e6;
+    }
+</style>
+<br>
+<center>
+    <br><br><br><br><br><br><br><br><br><br>
+    <div class="milk items-center text-6xl font-mono hover:text-blue-500">
+        <a href="/">literate-disco</a>
+    </div>
+    <div class="font-mono" style="margin-bottom: 10px;">
+        A file UI alternative to Google Drive.
+    </div>
+    <hr style="width: 50%;">
+    <div class="font-mono">
+        <div class="flex text-2xl">
+            <div class="flex-1 text-md hover:text-blue-500">
+                <a href="/oauth2callback">Login</a>
+            </div>
+        </div>
+    </div>
+    <div class="font-mono align-bottom">
+        <div class="text-center text-sm hover:text-blue-500">
+            <a href="/privacy-policy">Privacy Policy</a>
+        </div>
+        <div class="text-center text-sm hover:text-blue-500">
+            <a href="https://github.com/allilk/literate-disco">GitHub</a>
+        </div> 
+
+    </div>
+</center>
+{% endblock %}

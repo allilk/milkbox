@@ -1,6 +1,9 @@
 @import url('https://fonts.googleapis.com/css?family=Sen&display=swap');
+:root {
+  font-size: 15px
+}
 body{
-    background-color: #1F1F1F;
+    background-color: #080828;
     color: white;
   }
 .sidenav {
@@ -10,14 +13,14 @@ body{
     z-index: 1;
     top: 0;
     left: 0;
-    background-color: #111;
+    background-color: #00001a;
     overflow-x: hidden;
     padding-top: 20px;
   }
 .sidenav a {
     padding: 6px 8px 6px 16px;
     text-decoration: none;
-    font-size: 25px;
+    font-size: 1.25rem;
     color: #818181;
     display: block;
   }
@@ -37,9 +40,7 @@ body{
   font-family: 'Sen', sans-serif;
 }
 .list-item {
-  font-size: 25px;
   font-family: 'Sen', sans-serif;
-  height: 55px;
   width: 90%;
   white-space: nowrap;
 }
@@ -52,7 +53,9 @@ hr {
 .folder{
   color: #6699ff;
 }
-
+.grid-cols-1{
+  font-size: 1.2rem;
+}
 .marquee {
   overflow-x: hidden;
   position: relative;
@@ -60,7 +63,6 @@ hr {
 .marquee-content:hover {
   margin-right: 250px;
   position: absolute;
-  height: 55px;
   animation: scroller 5s linear infinite;
   min-width: 90%; /* This needs to match the width of the parent */
 }
