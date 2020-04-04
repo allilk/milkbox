@@ -9,16 +9,20 @@ from django.db.models import Q
 
 from .models import cachedFile, cachedSharedDrive, UserProfile
 from .utils import get_service, add, add_tds, convert_bytes, get_changes
-from .config import CLIENT_ID, CLIENT_SECRET, REDIRECT_URI, AUTH_BASE_URL, TOKEN_URL, SCOPES
+from .config import CLIENT_ID, CLIENT_SECRET, REDIRECT_URI, AUTH_BASE_URL, TOKEN_URL, SCOPES, DEBUG
+
 from requests_oauthlib import OAuth2Session
 import json, datetime
 
 
 def index(request):
+    context = {
+        'debug': DEBUG
+    }
     if request.user.is_authenticated is False:
-        return render(request, 'public_index.html')
+        return render(request, 'public_index.html', context)
     elif request.user.is_authenticated is True:
-        return render(request, 'main_index.html')
+        return render(request, 'main_index.html', context)
 def privacyPolicy(request):
     return render(request, 'public_privacy_policy.html')
 @login_required(login_url='/oauth2callback')
@@ -57,7 +61,8 @@ def fileBrowser(request, folder_id):
     context = {
         'file_list': fileList,
         'date':datetime.date.today(),
-        'parent': parent_folder
+        'parent': parent_folder,
+        'debug': DEBUG
     }
     return render(request, 'main_files.html', context)
 @login_required(login_url='/oauth2callback')
@@ -93,7 +98,8 @@ def sharedFileBrowser(request, folder_id):
     context = {
         'file_list': fileList,
         'date':datetime.date.today(),
-        'parent': parent_folder
+        'parent': parent_folder,
+        'debug': DEBUG
     }
     return render(request, 'main_files.html', context)
 @login_required(login_url='/oauth2callback')
@@ -103,6 +109,7 @@ def driveBrowser(request):
     driveList=cachedSharedDrive.objects.all().filter(users__contains=[request.user.id]).order_by('name')
     context = {
         'driveList': driveList,
+        'debug': DEBUG
     }
     return render(request, 'main_shared_drives.html', context)
 @login_required(login_url='/oauth2callback')
@@ -125,7 +132,8 @@ def searchBrowser(request):
         context = {
             'file_list': fileList,
             'date':datetime.date.today(),
-            'parent': parent_folder
+            'parent': parent_folder,
+            'debug': DEBUG
         }
         return render(request, 'main_search.html', context)
     else:
@@ -135,7 +143,8 @@ def changeBrowser(request, folder_id):
     changeList=get_changes(current_user=request.user, folder_id=folder_id)
     context = {
         'change_list': changeList,
-        'date':datetime.date.today()
+        'date':datetime.date.today(),
+        'debug': DEBUG
     }
     return render(request, 'main_changes.html', context)
 def OAuth2Callback(request):

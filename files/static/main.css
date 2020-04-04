@@ -1,20 +1,25 @@
 @import url('https://fonts.googleapis.com/css?family=Sen&display=swap');
 :root {
-  font-size: 15px
+  font-size: 15px;
+  scroll-behavior: smooth;
 }
 body{
     background-color: #080828;
     color: white;
   }
+#main{
+  margin-left: 0px;
+}
 .sidenav {
     height: 100%;
-    width: 250px;
+    width: 0px;
     position: fixed;
     z-index: 1;
     top: 0;
     left: 0;
     background-color: #00001a;
     overflow-x: hidden;
+    transition: 0.5s;
     padding-top: 20px;
   }
 .sidenav a {
@@ -23,6 +28,7 @@ body{
     font-size: 1.25rem;
     color: #818181;
     display: block;
+    transition: 0.5s;
   }
 .sidenav a:hover {
     color: white;
@@ -79,4 +85,24 @@ hr {
   100% {
       transform: translateX(calc(-100% + 82%));
   }
+}
+
+#rmenu{
+  position: absolute;
+  height: 200px;
+  width: 160px;
+  background: #01012e;
+  font-size: 1rem;
+  display: none;
+  text-align: center;
+
+}
+#rmenu-link:hover, #rmenu-content:hover{
+  background: #F9F9F9;
+  color: #6699ff;
+}
+.context-selected, .contextM:hover{
+  background: #F9F9F9;
+  color: #6699ff;
+
 }

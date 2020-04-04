@@ -1,8 +1,8 @@
 {% extends "main_header.html" %}
 {% block body %}
 {% load tz %}
-    <br>
-    <input id="search_input" onkeyup="searchGrid()" style="background-color: #080828;" class="text-white w-full p-2" placeholder="Search...">
+
+    <input id="search_input" onkeyup="searchGrid()" style="background-color: #080828; font-size: 1.25rem;" class="text-white w-full p-2" placeholder="Search...">
     <div class="grid grid-cols-1 gap-1">
         <div class="flex -mx-2">
             <div class="w-1/2 list-item">
@@ -15,9 +15,10 @@
                 Size
             </div>
         </div>
-        <div class="flex -mx-2">
+        <div class="contextM flex -mx-2">
             <div class="w-1/2 list-item">
-                <a href='/files/{{parent}}'>../</a>
+                <a id="parent" href='/files/{{parent}}'>../ <span class="text-gray-600" style="font-size: 0.85rem;">({{parent}})</span>
+                </a>
             </div>
             <div class="w-1/4 date_col">
                 -
@@ -29,15 +30,15 @@
     </div>
     <div class="grid grid-cols-1 gap-1" id="file_table">
         {% for file in file_list %}
-            <div class="flex -mx-2">
+            <div id="selected" class="contextM flex -mx-2">
                 <div class="w-1/2 list-item marquee">
                     {% if 'folder' in file.mimetype %}
                         <a href="/files/{{file.file_id}}">
-                            <span class="marquee-content folder">{{file.name}}/</span>
+                            <span class="marquee-content folder">{{file.name}}/ <span class="text-gray-600" style="font-size: 0.85rem;">({{file.file_id}})</span></span>
                         </a>
                     {% else %}
-                        <a href="/files/{{file.file_id}}">
-                            <span class="marquee-content">{{file.name}}</span>
+                        <a href="">
+                            <span class="marquee-content">{{file.name}} <span class="text-gray-600" style="font-size: 0.85rem;">({{file.file_id}})</span></span>
                         </a>
                     {% endif %}
                 </div>
@@ -60,6 +61,16 @@
             </div>
         {% endfor %}
     </div>
+
+<!--     
+    JS to be cleaned up! -->
+    <div id='rmenu'>
+        <a id="rmenu-changes">View Changes</a><hr>
+        <a id="rmenu-copy" href="">Copy GD Link</a><hr>
+        <a id="rmenu-view" href="">View in GD</a><hr>
+        <a id="rmenu-content" href="">Share</a>
+        
+    </div>
     <script>
         function searchGrid() {
         var input, filter, grid, flex, listitem, i, txtValue;
@@ -79,5 +90,70 @@
             }       
         }
         }
+    </script>
+    <script>
+        function getItem(i, listItem) {
+            listItem.addEventListener('contextmenu',function(ev){
+                ev.preventDefault();
+                fileId = listItem.getElementsByClassName("text-gray-600")[0];
+                rMenu = document.getElementById("rmenu");
+                str = fileId.textContent
+                str = str.replace('(','')
+                str = str.replace(')', '')
+                if (rMenu.style.display === 'none'){
+                    rMenu.style.left = ev.pageX;
+                    rMenu.style.top = ev.pageY;
+                    rMenu.style.display = 'block';
+                    document.getElementById("rmenu-view").href = "https://drive.google.com/open?id="+str;
+                    document.getElementById("rmenu-changes").href = "/files/"+str+"/changes";
+                }else{
+                    rMenu.style.display = 'none';
+                }
+                
+            });
+        }
+        itemList = document.getElementsByClassName("contextM");
+        lineSelected = 0
+        document.addEventListener('DOMContentLoaded', function(event) {
+            function keyPress(itemList) {
+            document.querySelector('body').addEventListener('keydown', function(ev){
+            if (ev.keyCode === 83) {
+                if (lineSelected < itemList.length - 1){
+                    if (typeof itemList[lineSelected] != undefined){
+                        itemList[lineSelected].classList.remove('context-selected');
+                    }
+                    lineSelected+=1;
+                    objSelected=itemList[lineSelected];
+                    objSelected.classList.add('context-selected');
+                    obj = document.getElementsByClassName("context-selected")[0];
+                    obj.scrollIntoView({behavior: "smooth", block: "center"});
+                }
+            } else if (ev.keyCode === 87) {
+                if (lineSelected > 0){
+                    if (typeof itemList[lineSelected] != undefined){
+                        itemList[lineSelected].classList.remove('context-selected');
+                    }
+                    lineSelected-=1;
+                    objSelected=itemList[lineSelected];
+                    objSelected.classList.add('context-selected');
+                    obj = document.getElementsByClassName("context-selected")[0];
+                    obj.scrollIntoView({behavior: "smooth", block: "center"});
+                }
+            } else if (ev.keyCode === 13) {
+                if (typeof itemList[lineSelected] != undefined){
+                    fileId = itemList[lineSelected].getElementsByClassName("text-gray-600")[0];
+                    str = fileId.textContent
+                    str = str.replace('(','')
+                    str = str.replace(')', '')
+                    window.location.replace("http://127.0.0.1:8000/files/"+str);
+                }
+            }
+            
+        });}
+        keyPress(itemList);
+        });
+        for (i = 0; i < itemList.length; i++) {
+            getItem(i, itemList[i].getElementsByClassName("list-item")[0])
+        } 
     </script>
 {% endblock %}

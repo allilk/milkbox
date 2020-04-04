@@ -1,8 +1,13 @@
 {% load static %}
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link href="https://unpkg.com/tailwindcss@^1.0/dist/tailwind.min.css" rel="stylesheet">
-    <link href="http://site.developer.lgbt{% static 'main.css' %}?v=2" type="text/css" rel="stylesheet">
+    {% if debug is False %}
+        <link href="http://site.developer.lgbt{% static 'tailwind.min.css'%}" rel="stylesheet">
+        <link href="http://site.developer.lgbt{% static 'main.css' %}" type="text/css" rel="stylesheet">
+    {% elif debug is True%}
+        <link href="{% static 'tailwind.min.css'%}" rel="stylesheet">
+        <link href="{% static 'main.css' %}" type="text/css" rel="stylesheet">
+    {% endif %}
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 </head>
 <body>

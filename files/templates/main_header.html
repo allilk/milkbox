@@ -1,13 +1,19 @@
 {% load static %}
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link href="https://unpkg.com/tailwindcss@^1.0/dist/tailwind.min.css" rel="stylesheet">
-    <link href="{% static 'main.css' %}?v=2" type="text/css" rel="stylesheet">
+    {% if debug is False %}
+        <link href="http://site.developer.lgbt{% static 'tailwind.min.css'%}" rel="stylesheet">
+        <link href="http://site.developer.lgbt{% static 'main.css' %}" type="text/css" rel="stylesheet">
+    {% elif debug is True%}
+        <link href="{% static 'tailwind.min.css'%}" rel="stylesheet">
+        <link href="{% static 'main.css' %}" type="text/css" rel="stylesheet">
+    {% endif %}
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 </head>
 <body>
-    <div class="sidenav font-mono">
-        <br><br><br><br>
+    <div id="sidenav-bar" class="sidenav font-mono">
+        <a class="text-right" onclick="closeNav()">X</a>
+        <br><br>
         <a href="/" class="sidebar-item">Home</a>
         <a href="/search" class="sidebar-item">Search</a>
         <hr>
@@ -19,16 +25,22 @@
         <hr>
         <a href="/settings" class="sidebar-item">Settings</a>
     </div>
-    <div class="main font-mono">
-        {% if return_message %}
-        <div class="bg-red-500 text-white font-bold rounded-t px-4 py-2">ERROR</div>
-        <div class="border border-t-0 border-red-400 rounded-b bg-red-100 px-4 py-3 text-red-700">
-            <p>{{return_message}}</p>
-        </div>
-        {% endif %}
-
+    <div id="main" class="main font-mono">
+        <a id="opennav" onclick="openNav()">-></a>
         {% block body %}
 
         {% endblock %}
     </div>
+    <script>
+        function openNav() {
+            document.getElementById("sidenav-bar").style.width = "250px";
+            document.getElementById("main").style.marginLeft = "250px";
+            document.getElementById("opennav").style.display = "none";
+          }
+        function closeNav() {
+            document.getElementById("sidenav-bar").style.width = "0";
+            document.getElementById("main").style.marginLeft = "0";
+            document.getElementById("opennav").style.display = "block";
+        }
+    </script>
 </body>
