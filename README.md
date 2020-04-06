@@ -12,6 +12,7 @@ To Do:
 - Implement a experimental search(searching API rather than cache)
 - Finish Changes UI
 - Implement sharing
+- Fix redirects, implement error pages.
 
 In The Future:
 - Allow for other services, like MEGA.

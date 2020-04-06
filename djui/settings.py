@@ -31,7 +31,6 @@ ALLOWED_HOSTS = ['0.0.0.0:8000','0.0.0.0','127.0.0.1','site.developer.lgbt']
 # Application definition
 
 INSTALLED_APPS = [
-    'rest_framework',
     'files.apps.FilesConfig',
     'django.contrib.admin',
     'django.contrib.auth',
@@ -130,10 +129,3 @@ STATICFILES_DIRS = [
     os.path.join(BASE_DIR, "static"),
 ]
 
-REST_FRAMEWORK = {
-    # Use Django's standard `django.contrib.auth` permissions,
-    # or allow read-only access for unauthenticated users.
-    'DEFAULT_PERMISSION_CLASSES': [
-        'rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly'
-    ]
-}

@@ -113,6 +113,10 @@ def driveBrowser(request):
     }
     return render(request, 'main_shared_drives.html', context)
 @login_required(login_url='/oauth2callback')
+def driveBrowserRefresh(request):
+    add_tds(request.user, refresh=True)
+    return redirect('/shared_drives')
+@login_required(login_url='/oauth2callback')
 def searchBrowser(request):
     search_query=None
     if 'q' in request.GET:
