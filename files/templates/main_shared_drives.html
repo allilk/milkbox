@@ -1,6 +1,7 @@
 {% extends "main_header.html" %}
 {% block body %}
-<div class="grid grid-cols-1 gap-1">
+<input id="search_input" onkeyup="searchGrid()" style="background-color: #080828; font-size: 1.25rem;" class="text-white w-full p-2" placeholder="Search...">
+<div class="grid grid-cols-1 gap-1" id="file_table">
     {% for drive in driveList %}
     <a href="/files/{{drive.drive_id}}">
         <div class="flex -mx-2">
@@ -12,4 +13,24 @@
     </a>
     {% endfor %}
 </div>
+<script>
+    function searchGrid() {
+    var input, filter, grid, flex, listitem, i, txtValue;
+    input = document.getElementById("search_input");
+    filter = input.value.toUpperCase();
+    grid = document.getElementById("file_table");
+    flex = grid.getElementsByClassName("flex");
+    for (i = 0; i <flex.length; i++) {
+        listitem =flex[i].getElementsByClassName("list-item")[0];
+        if (listitem) {
+        txtValue = listitem.textContent || listitem.innerText;
+        if (txtValue.toUpperCase().indexOf(filter) > -1) {
+        flex[i].style.display = "";
+        } else {
+        flex[i].style.display = "none";
+        }
+        }       
+    }
+    }
+</script>
 {% endblock %}

@@ -116,8 +116,7 @@ def add(current_user, folder_id, refresh=False):
         newFile.save()
         print(f"LOG : '{item['name']}' successfully cached.")
 def add_tds(current_user, refresh=False):
-    service=get_service(current_user)
-    drive_list=[]
+    service=get_service(current_user) 
     user_list=[current_user.id]
     if refresh is True:
         drive_list=cachedSharedDrive.objects.all().filter(users__contains=[current_user.id])
@@ -125,6 +124,7 @@ def add_tds(current_user, refresh=False):
             user_list+=list(dict.fromkeys(item.users))
         drive_list.delete()
     user_list=list(dict.fromkeys(user_list))
+    drive_list=[]
     shared_drives={'nextPageToken':None}
     while 'nextPageToken' in shared_drives:
         shared_drives = service.drives().list(pageSize=100,pageToken=shared_drives['nextPageToken']).execute()

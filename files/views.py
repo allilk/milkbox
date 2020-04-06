@@ -1,8 +1,7 @@
-from django.shortcuts import render, get_object_or_404, redirect
-from django.http import HttpResponse
+from django.shortcuts import render, redirect, get_list_or_404, get_object_or_404
 from django.template import loader
 from django.contrib.auth.models import User
-from django.contrib.auth import authenticate, login, logout, login
+from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.postgres.search import SearchVector
 from django.db.models import Q
@@ -25,10 +24,10 @@ def index(request):
         return render(request, 'main_index.html', context)
 def privacyPolicy(request):
     return render(request, 'public_privacy_policy.html')
-@login_required(login_url='/oauth2callback')
-def profilePage(request, profile_id):
-    # PLACEHOLDER
-    return HttpResponse(f"Hello, {request.user.username}")
+# @login_required(login_url='/oauth2callback')
+# def profilePage(request, profile_id):
+#     # PLACEHOLDER
+#     return HttpResponse(f"Hello, {request.user.username}")
 @login_required(login_url='/oauth2callback')
 def fileBrowser(request, folder_id):
     if folder_id == 'my-drive':
@@ -119,11 +118,38 @@ def driveBrowserRefresh(request):
 @login_required(login_url='/oauth2callback')
 def searchBrowser(request):
     search_query=None
+    context = {
+        'debug': DEBUG
+        }
     if 'q' in request.GET:
         search_query = request.GET['q']
-    if search_query is not None:
-        print("Running search..")
-        fileList=[]
+        # Experimental search, still a WIP.
+        if 'True' in request.GET.getlist('experimental'):
+            exp_bool = request.GET.getlist('experimental')[0]
+            if exp_bool == 'True':
+                service=get_service(request.user)
+                print("Running experimental search...")
+                resultList=service.files().list(q=f"fullText contains '{search_query}' or name contains '{search_query}'",
+                            fields="nextPageToken, files(id, name, parents, size, mimeType)",pageSize=250,corpora='allDrives',
+                            supportsAllDrives=True,includeItemsFromAllDrives=True,supportsTeamDrives=True,includeTeamDriveItems=True).execute()
+                for item in resultList['files']:
+                    itemExists=None
+                    if 'folder' in item['mimeType']:
+                        try:
+                            itemExists=get_object_or_404(cachedFile, parents=item['id'])
+                            break
+                        except:
+                            add(current_user=request.user, folder_id=item['parents'][0], refresh=True)
+                    else:
+                        try:
+                            itemExists=get_object_or_404(cachedFile, parents=item['parents'][0])
+                            break
+                        except:
+                            add(current_user=request.user, folder_id=item['parents'][0], refresh=True)
+        else:
+            if search_query is not None:
+                print("Running search..")
+                fileList=[]
         resultList=cachedFile.objects.annotate(search=SearchVector('name')).filter(Q(search=search_query)|Q(search__icontains=search_query),users__contains=[request.user.id])
         fileList = { i.file_id : i for i in resultList }.values()
         try:
@@ -141,7 +167,7 @@ def searchBrowser(request):
         }
         return render(request, 'main_search.html', context)
     else:
-        return render(request, 'main_search.html')
+        return render(request, 'main_search.html', context)
 @login_required(login_url='/oauth2callback')
 def changeBrowser(request, folder_id):
     changeList=get_changes(current_user=request.user, folder_id=folder_id)
@@ -173,6 +199,7 @@ def OAuth2Callback(request):
                 existing_user.userprofile.save()
                 login(request, existing_user, backend='django.contrib.auth.backends.ModelBackend')
                 print("LOG : User Logged in: " + existing_user.username)
+                return redirect('/files/my-drive')
             else:
                 user=User.objects.create_user(username=display_name, email=email_address)
                 user.set_unusable_password()
@@ -182,7 +209,7 @@ def OAuth2Callback(request):
                 existing_user.userprofile.gdrive_auth=token
                 existing_user.userprofile.save()
                 login(request, existing_user, backend='django.contrib.auth.backends.ModelBackend')
-            return HttpResponse("Hello! " + existing_user.username)
+            return redirect('/files/my-drive')
         else:
             request.user.userprofile.gdrive_auth=token
             request.user.userprofile.save()
