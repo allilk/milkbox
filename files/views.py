@@ -13,7 +13,6 @@ from .config import CLIENT_ID, CLIENT_SECRET, REDIRECT_URI, AUTH_BASE_URL, TOKEN
 from requests_oauthlib import OAuth2Session
 import json, datetime
 
-
 def index(request):
     context = {
         'debug': DEBUG
@@ -23,7 +22,15 @@ def index(request):
     elif request.user.is_authenticated is True:
         return render(request, 'main_index.html', context)
 def privacyPolicy(request):
-    return render(request, 'public_privacy_policy.html')
+    context = {
+        'debug': DEBUG
+    }
+    return render(request, 'public_privacy_policy.html', context)
+def aboutPage(request):
+    context = {
+        'debug': DEBUG
+    }
+    return render(request, 'public_about.html', context)
 # @login_required(login_url='/oauth2callback')
 # def profilePage(request, profile_id):
 #     # PLACEHOLDER

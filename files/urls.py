@@ -13,5 +13,6 @@ urlpatterns = [
     # path('profile/<int:profile_id>/', views.profilePage),
     path('oauth2callback/', views.OAuth2Callback),
     path('privacy-policy/', views.privacyPolicy),
+    path('about/', views.aboutPage),
     path('search/', views.searchBrowser)
 ]
