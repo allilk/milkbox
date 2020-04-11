@@ -1,7 +1,7 @@
 # literate-disco
 A file UI alternative to Google Drive.
 Live Site: https://site.developer.lgbt
-(Currently running v0.1 and pending approval by Google.)
+(Currently running v0.2 and pending approval by Google.)
 If there are any issues in browsing the site, or running your own, I urge you to open a issue on GitHub so I can get it fixed ASAP.
 
 To Do:
