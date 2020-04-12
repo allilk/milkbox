@@ -5,3 +5,5 @@ config.py
 manage.py
 tailwind.min.css
 .vscode/
+Pipfile
+Pipfile.lock
