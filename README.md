@@ -14,6 +14,7 @@ To Do:
 - Implement sharing
 - Fix redirects, implement error pages.
 - Clean up project folder structure
+
 In The Future:
 - Allow for other services, like MEGA.
 - Higher Authentication for more features like deleting, copying, etc.
