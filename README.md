@@ -25,7 +25,7 @@ List to be updated in the future.
 How do I run my own?
 - Install and setup PostgreSQL 12, then create a database named "django-ui".
 - Follow the first two steps of https://developers.google.com/drive/api/v3/quickstart/python
-- `pip install django python-dateutil psycopg2 `
+- `pip install -r requirements.txt `
 - Copy and paste https://pastebin.com/EPDhBUBh into `files/config.py`, fill in as needed. 
 - Change neccessary settings in `djui/settings.py`.
 - `python manage.py migrate`
