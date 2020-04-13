@@ -28,7 +28,7 @@ How do I run my own?
 - Follow the first two steps of https://developers.google.com/drive/api/v3/quickstart/python
 - `pip install -r requirements.txt `
 - Copy and paste https://pastebin.com/EPDhBUBh into `files/config.py`, fill in as needed. 
-- Change neccessary settings in `djui/settings.py`.
+- Change neccessary settings in `backend/settings.py`.
 - `python manage.py migrate`
 - `python manage.py runserver`
 
