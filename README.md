@@ -13,7 +13,7 @@ To Do:
 - Finish Changes UI
 - Implement sharing
 - Fix redirects, implement error pages.
-- Clean up project folder structure
+- ~~Clean up project folder structure~~
 
 In The Future:
 - Allow for other services, like MEGA.
