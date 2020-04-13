@@ -11,7 +11,7 @@ https://docs.djangoproject.com/en/3.0/ref/settings/
 """
 
 import os
-from files.config import DB_PSW, SECRET_KEY, DEBUG
+from frontend.config import DB_PSW, SECRET_KEY, DEBUG
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -31,7 +31,7 @@ ALLOWED_HOSTS = ['0.0.0.0:8000','0.0.0.0','127.0.0.1','site.developer.lgbt']
 # Application definition
 
 INSTALLED_APPS = [
-    'files.apps.FilesConfig',
+    'frontend.apps.FilesConfig',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
