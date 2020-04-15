@@ -7,3 +7,4 @@ tailwind.min.css
 .vscode/
 Pipfile
 Pipfile.lock
+__pycache__/
