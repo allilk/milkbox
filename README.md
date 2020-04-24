@@ -5,7 +5,7 @@ Live Site: https://site.developer.lgbt
 If there are any issues in browsing the site, or running your own, I urge you to open a issue on GitHub so I can get it fixed ASAP.
 
 To Do:
-- Restful API & ReactJS Implementation
+- ~~Restful API & ReactJS Implementation~~ Seperate project: https://github.com/allilk/milkbox-js
 - Complete Context Menu
 - Switching between Dark and Light Themes
 - Settings panel(to tweak experience)
@@ -18,7 +18,6 @@ To Do:
 In The Future:
 - Allow for other services, like MEGA.
 - Higher Authentication for more features like deleting, copying, etc.
-- JS Rewrite
 
 List to be updated in the future.
 
