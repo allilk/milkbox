@@ -51,7 +51,6 @@ class fileManagement:
             query_tag="'root' in parents"
             tags=['my-drive']
         query=f"{query_tag} and trashed=false"
-        print(query)
         completeList = []
         fileList={'nextPageToken':None}
         while 'nextPageToken' in fileList:
@@ -224,7 +223,9 @@ class fileManagement:
     def browse_files(self):
         parentFolder = None
         fileList = []
+        tryTimes = 0
         while (fileList == []):
+            if (tryTimes >= 2): break
             if (self.folder_id in ['my-drive','shared-with-me','favourites']):
                 fileList = cachedFile.objects.all().filter(
                     tags__contains=[self.folder_id],
@@ -240,7 +241,10 @@ class fileManagement:
                     parentFolder = cachedFile.objects.get(file_id=self.folder_id).parents
                 except:
                     parentFolder = 'my-drive'
-            if (fileList == []): self.add_file()
+            if (len(fileList) == 0):
+                self.add_file()
+                fileList = []
+            tryTimes+=1
         file_list=[]
         folder_list=[]
         for item in fileList:
