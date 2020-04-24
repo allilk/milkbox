@@ -14,7 +14,7 @@ from dateutil.parser import isoparse
 
 
 class fileManagement:
-    def __init__(self, current_user_id, folder_id):
+    def __init__(self, current_user_id, folder_id=None):
         activity=False
         self.current_user = User.objects.get(
                 id=int(current_user_id)
@@ -121,7 +121,7 @@ class fileManagement:
             if (num < step_unit):
                 return ("%3.1f %s" % (num, x))
             num /= step_unit
-    def add_shared_drive(self, refresh):
+    def add_shared_drive(self, refresh=False):
         if (refresh == True):
             self.userList = self.purge_file(True)
         completeList=[]
@@ -138,7 +138,7 @@ class fileManagement:
                 drive_id=drive['id'],
                 users=self.userList
             ).save()
-            print(f"LOG : '{drive['name']}' successflly cached by '{self.current_user.name}'")
+            print(f"LOG : '{drive['name']}' successflly cached by '{self.current_user.username}'")
     def get_changes(self):
         target=None
 
@@ -223,9 +223,8 @@ class fileManagement:
         return context
     def browse_files(self):
         parentFolder = None
-        
         fileList = []
-        while (not fileList):
+        while (fileList == []):
             if (self.folder_id in ['my-drive','shared-with-me','favourites']):
                 fileList = cachedFile.objects.all().filter(
                     tags__contains=[self.folder_id],
@@ -237,8 +236,11 @@ class fileManagement:
                     parents=self.folder_id,
                     users__contains=self.userList
                 ).order_by('name')
-                parentFolder = cachedFile.objects.get(file_id=self.folder_id).parents
-            if (not fileList): self.add_file()
+                try:
+                    parentFolder = cachedFile.objects.get(file_id=self.folder_id).parents
+                except:
+                    parentFolder = 'my-drive'
+            if (fileList == []): self.add_file()
         file_list=[]
         folder_list=[]
         for item in fileList:
@@ -254,7 +256,7 @@ class fileManagement:
         return context
     def browse_drives(self):
         driveList = []
-        while (driveList != []):
+        while (driveList == []):
             driveList = cachedSharedDrive.objects.all().filter(
                 users__contains=self.userList
             )
