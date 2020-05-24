@@ -1,7 +1,7 @@
 from django.contrib.auth.models import User
 from asgiref.sync import sync_to_async
 from .models import cachedFile, cachedSharedDrive
-from .config import CLIENT_ID, CLIENT_SECRET, TOKEN_URL, DEBUG
+from .config import CLIENT_ID, CLIENT_SECRET, TOKEN_URL, DEBUG, EXTERNAL_AUTH_ALLOWED, FALLBACK_AUTH, FALLBACK_CREDS
 from django.shortcuts import get_object_or_404
 
 from google.auth.transport.requests import Request
@@ -16,15 +16,20 @@ from dateutil.parser import isoparse
 class fileManagement:
     def __init__(self, current_user_id, folder_id=None):
         activity=False
-        self.current_user = User.objects.get(
-                id=int(current_user_id)
-            )
         self.folder_id = folder_id
         self.refresh = False
+        if (EXTERNAL_AUTH_ALLOWED == False):
+            self.current_user = -1
+        else:
+            self.current_user = User.objects.get(
+                id=int(current_user_id)
+            )
         self.userList = [current_user_id]
         credentials = None
         if (current_user_id == None):
             g_auth=json.loads(self.current_user.userprofile.gdrive_auth)
+        elif (FALLBACK_AUTH == True and FALLBACK_CREDS != None):
+            g_auth=0#IMPLEMENT THHE LOADING HEREE
         else:
             g_auth=json.loads(User.objects.select_related('userprofile').get(id=current_user_id).userprofile.gdrive_auth)
         credentials=Credentials(token=g_auth['access_token'],refresh_token=g_auth['refresh_token'],
@@ -87,7 +92,7 @@ class fileManagement:
                 users=self.userList,
                 tags=tags,
                 shared_with=self.userList
-            ).save()
+                ).save()
 
             print(f"LOG : '{item['name']}' successfully cached by '{self.current_user.username}'.")
     def purge_file(self, sd):
@@ -270,7 +275,8 @@ class fileManagement:
             'debug': DEBUG
         }
         return context
-      
+    def update_sharing(self):
+        
 class userManagement:
     def __init__(self, email, current_user_id):
         self.email = email

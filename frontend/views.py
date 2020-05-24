@@ -9,10 +9,17 @@ from django.db.models import Q
 from .models import cachedFile, cachedSharedDrive, UserProfile
 from .tasks import fileManagement ,userManagement
 
-from .config import CLIENT_ID, CLIENT_SECRET, REDIRECT_URI, AUTH_BASE_URL, TOKEN_URL, SCOPES, DEBUG
+from .config import CLIENT_ID, CLIENT_SECRET, REDIRECT_URI, AUTH_BASE_URL, TOKEN_URL, SCOPES, DEBUG, EXTERNAL_AUTH_ALLOWED, FALLBACK_AUTH
 
 from requests_oauthlib import OAuth2Session
 import json, datetime, time
+
+# def condec(dec, condition):
+#     def decorator(func):
+#         if (condition ):
+#             return func
+#         return dec(func)
+#     return decorator
 
 def index(request):
     context = {'debug':DEBUG}
@@ -48,7 +55,6 @@ def OAuth2Callback(request):
     else: return redirect(auth_url)
 # def sharedFileBrowser(request, folder_id):
 
-@login_required
 def fileBrowser(request, folder_id):
     context = fileManagement(request.user.id, folder_id).browse_files()
     return render(request, 'main_files.html', context)
