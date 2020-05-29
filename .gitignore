@@ -8,3 +8,6 @@ tailwind.min.css
 Pipfile
 Pipfile.lock
 __pycache__/
+credentials.json
+old_utils.py
+old_views.py
