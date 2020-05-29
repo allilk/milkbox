@@ -8,7 +8,7 @@ from django.dispatch import receiver
 class UserProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     gdrive_auth = JSONField(default=dict,blank=True)
-    
+    tags = ArrayField(models.CharField(max_length=1024), null=True)
     def __str__(self):
         return self.user.username
 

@@ -1,10 +1,10 @@
 from django.contrib.auth.models import User
 from asgiref.sync import sync_to_async
-from .models import cachedFile, cachedSharedDrive
-from .config import CLIENT_ID, CLIENT_SECRET, TOKEN_URL, DEBUG, EXTERNAL_AUTH_ALLOWED, FALLBACK_AUTH, FALLBACK_CREDS
-from django.shortcuts import get_object_or_404
+from .models import cachedFile, cachedSharedDrive, UserProfile
+from .config import CLIENT_ID, CLIENT_SECRET, TOKEN_URL, SCOPES, DEBUG, EXTERNAL_AUTH_ALLOWED, FALLBACK_AUTH, FALLBACK_CREDS
 
 from google.auth.transport.requests import Request
+from google_auth_oauthlib.flow import InstalledAppFlow
 from google.oauth2.credentials import Credentials
 from googleapiclient.discovery import build
 from requests_oauthlib import OAuth2Session
@@ -14,22 +14,22 @@ from dateutil.parser import isoparse
 
 
 class fileManagement:
-    def __init__(self, current_user_id, folder_id=None):
-        activity=False
+    def __init__(self, current_user_id, folder_id=None, activity=False):
         self.folder_id = folder_id
         self.refresh = False
-        if (EXTERNAL_AUTH_ALLOWED == False):
-            self.current_user = -1
+        if (FALLBACK_AUTH == True and EXTERNAL_AUTH_ALLOWED == False):
+            self.current_user = UserProfile.objects.select_related('user').get(tags__contains=['fallback=1'])
+            self.userList = [self.current_user.user.id]
         else:
             self.current_user = User.objects.get(
                 id=int(current_user_id)
             )
-        self.userList = [current_user_id]
+            self.userList = [current_user_id]
         credentials = None
-        if (current_user_id == None):
+        if (current_user_id == None and EXTERNAL_AUTH_ALLOWED == True):
             g_auth=json.loads(self.current_user.userprofile.gdrive_auth)
-        elif (FALLBACK_AUTH == True and FALLBACK_CREDS != None):
-            g_auth=0#IMPLEMENT THHE LOADING HEREE
+        elif (FALLBACK_AUTH == True and EXTERNAL_AUTH_ALLOWED == False):
+            g_auth=json.loads(self.current_user.gdrive_auth)
         else:
             g_auth=json.loads(User.objects.select_related('userprofile').get(id=current_user_id).userprofile.gdrive_auth)
         credentials=Credentials(token=g_auth['access_token'],refresh_token=g_auth['refresh_token'],
@@ -93,8 +93,10 @@ class fileManagement:
                 tags=tags,
                 shared_with=self.userList
                 ).save()
-
-            print(f"LOG : '{item['name']}' successfully cached by '{self.current_user.username}'.")
+            if (FALLBACK_AUTH == True and EXTERNAL_AUTH_ALLOWED == False):
+                print(f"LOG : '{item['name']}' successfully cached.")
+            else:
+                print(f"LOG : '{item['name']}' successfully cached by '{self.current_user.username}'.")
     def purge_file(self, sd):
         if (sd == False):
             if (self.folder_id == 'shared-with-me') or (self.folder_id == 'favourites'):
@@ -142,14 +144,16 @@ class fileManagement:
                 drive_id=drive['id'],
                 users=self.userList
             ).save()
-            print(f"LOG : '{drive['name']}' successflly cached by '{self.current_user.username}'")
+            if (FALLBACK_AUTH == True and EXTERNAL_AUTH_ALLOWED == False):
+                print(f"LOG : '{drive['name']}' successfully cached.")
+            else:
+                print(f"LOG : '{drive['name']}' successflly cached by '{self.current_user.username}'")
     def get_changes(self):
         target=None
-
-        if not (cachedFile.objects.get(file_id=self.folder_id)):
+        if not (cachedFile.objects.all().filter(file_id=self.folder_id).first()):
             self.add_file()
-        item = cachedFile.objects.get(file_id=self.folder_id)
-
+        item = cachedFile.objects.all().filter(file_id=self.folder_id).first()
+        
         if ('folder' in item.mimetype): target='ancestorName'
         else: target='itemName'
 
@@ -164,12 +168,15 @@ class fileManagement:
             targets=activ['targets'][0]
 
             split_value=None
-            if ('teamDrive' in targets): split_value='teamDrive'
-            elif ('driveItem' in targets): split_value='items'
-            new_target=targets[split_value]
+            if ('teamDrive' in targets):
+                split_value='teamDrive'
+                new_target=targets['teamDrive']
+            elif ('driveItem' in targets):
+                split_value='items'
+                new_target=targets['driveItem']
+            actions=activ['actions'][0]
             changed_id=(new_target['name']).split(f'{split_value}/')[1]
 
-            action=None
             if ('create' in actions['detail']): file_action='Created'
             elif ('delete' in actions['detail']): file_action='Deleted'
             elif ('move' in actions['detail']): file_action='Moved'
@@ -178,15 +185,15 @@ class fileManagement:
             elif ('restore' in actions['detail']): file_action='Restored from Trash.'
             elif ('edit' in actions['detail']): file_action='Edited.'
 
-            dateTime=isoparse(item['modifiedTime'])
+            dateTime=isoparse(timestamp)
 
-            if (action != None):
+            if (file_action != None):
                 changeList.append({
-                    'change':f'File {action}',
+                    'change':f'File {file_action}',
                     'file':new_target['title'],
                     'file_id':changed_id,
                     'date':dateTime.strftime("%Y-%m-%d"),
-                    'time':dataTime.strftime("%H:%M:%S.%f%z")
+                    'time':dateTime.strftime("%H:%M:%S.%f%z"),
                 })
             context = {
                 'change_list': changeList,
@@ -275,8 +282,7 @@ class fileManagement:
             'debug': DEBUG
         }
         return context
-    def update_sharing(self):
-        
+    # def update_sharing(self):   
 class userManagement:
     def __init__(self, email, current_user_id):
         self.email = email
@@ -286,12 +292,17 @@ class userManagement:
         print(f"ID: {self.current_user}")
         # print(self.current_user)
     def find_existing(self):
-        try:
+        # try:
+        
+        if (FALLBACK_AUTH == True and EXTERNAL_AUTH_ALLOWED == False):
+            existingUser = UserProfile.objects.select_related('user').get(
+                tags__contains=['fallback=1'])
+        else:
             existingUser = User.objects.select_related('userprofile').get(
-                email=self.email
-            )
-        except:
-            existingUser = None
+                email=self.email)
+        # except:
+        #     existingUser = None
+        print(existingUser)
         return existingUser
     def add_auth(self, display_name, token=None):
         
@@ -300,9 +311,13 @@ class userManagement:
         if (self.current_user != '-1'):
             existingUser = self.find_existing()
             if (existingUser != None):
-                existingUser.userprofile.gdrive_auth = token
-                existingUser.userprofile.save()
-                print(f"LOG : User Logged in: '{existingUser.username}'")
+                if (FALLBACK_AUTH == True and EXTERNAL_AUTH_ALLOWED == False):
+                    existingUser.gdrive_auth = token
+                    existingUser.save()
+                else:
+                    existingUser.userprofile.gdrive_auth = token
+                    existingUser.userprofile.save()
+                    print(f"LOG : User Logged in: '{existingUser.username}'")
             elif (existingUser == None):
                 newUser = User.objects.create_user(
                     username=display_name,
@@ -315,7 +330,11 @@ class userManagement:
                 print(f"LOG : New User Registered. '{display_name}'")
         else:
             existingUser = self.find_existing()
-            existingUser.userprofile.gdrive_auth = token
-            existingUser.userprofile.save()
-            print(f"LOG : User: '{existingUser.username}' auth updated.")
+            if (FALLBACK_AUTH == True and EXTERNAL_AUTH_ALLOWED == False):
+                existingUser.gdrive_auth = token
+                existingUser.save()
+            else:
+                existingUser.userprofile.gdrive_auth = token
+                existingUser.userprofile.save()
+                print(f"LOG : User: '{existingUser.username}' auth updated.")
         return existingUser

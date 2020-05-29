@@ -7,20 +7,19 @@ from django.contrib.postgres.search import SearchVector
 from django.db.models import Q
 
 from .models import cachedFile, cachedSharedDrive, UserProfile
-from .tasks import fileManagement ,userManagement
+from .tasks import fileManagement, userManagement
 
 from .config import CLIENT_ID, CLIENT_SECRET, REDIRECT_URI, AUTH_BASE_URL, TOKEN_URL, SCOPES, DEBUG, EXTERNAL_AUTH_ALLOWED, FALLBACK_AUTH
 
 from requests_oauthlib import OAuth2Session
 import json, datetime, time
 
-# def condec(dec, condition):
-#     def decorator(func):
-#         if (condition ):
-#             return func
-#         return dec(func)
-#     return decorator
-
+def condec(dec, EXTERNAL_AUTH_ALLOWED):
+    def decorator(func):
+        if (EXTERNAL_AUTH_ALLOWED is True):
+            return dec(func)
+        return func
+    return decorator
 def index(request):
     context = {'debug':DEBUG}
     if (request.user.is_authenticated == False):
@@ -46,31 +45,35 @@ def OAuth2Callback(request):
         email_address=user['emailAddress']
         if (request.user.id == None):
             passId = -1
-        login(
-            request,
-            userManagement(email_address, passId).add_auth(display_name, token),
-            backend='django.contrib.auth.backends.ModelBackend'
-        )
+        if (FALLBACK_AUTH == True and EXTERNAL_AUTH_ALLOWED == False):
+            passId = -1
+            userManagement(email_address, passId).add_auth(display_name, token)
+        else:
+            login(
+                request,
+                userManagement(email_address, passId).add_auth(display_name, token),
+                backend='django.contrib.auth.backends.ModelBackend'
+            )
         return redirect('/files/my-drive')
     else: return redirect(auth_url)
 # def sharedFileBrowser(request, folder_id):
-
+@condec(login_required, EXTERNAL_AUTH_ALLOWED)
 def fileBrowser(request, folder_id):
     context = fileManagement(request.user.id, folder_id).browse_files()
     return render(request, 'main_files.html', context)
-@login_required
+@condec(login_required, EXTERNAL_AUTH_ALLOWED)
 def fileBrowserRefresh(request, folder_id):
     fileManagement(request.user.id, folder_id).add_file(True)
     return redirect('/files/'+folder_id)
-@login_required
+@condec(login_required, EXTERNAL_AUTH_ALLOWED)
 def driveBrowser(request):
     context = fileManagement(request.user.id).browse_drives()
     return render(request, 'main_shared_drives.html', context)
-@login_required
+@condec(login_required, EXTERNAL_AUTH_ALLOWED)
 def driveBrowserRefresh(request):
     fileManagement(request.user.id).add_shared_drive(True)
     return redirect('/shared_drives')
-@login_required
+@condec(login_required, EXTERNAL_AUTH_ALLOWED)
 def searchBrowser(request):
     context={'debug':DEBUG}
     search_query = None
@@ -81,7 +84,7 @@ def searchBrowser(request):
         else:
             context = fileManagement(request.user.id).search_files(search_query, False)
     return render(request, 'main_search.html', context)
-@login_required
+@condec(login_required, EXTERNAL_AUTH_ALLOWED)
 def changeBrowser(request, folder_id):
-    # context = fileManagement(request.user.id, folder_id).get_changes()
+    context = fileManagement(request.user.id, folder_id, activity=True).get_changes()
     return render(request, 'main_changes.html', context)
